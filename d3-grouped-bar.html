@@ -42,6 +42,10 @@
            }
            **/
           data: Object,
+          csv: {
+            type: String,
+            observer: 'loadDataFromCSV',
+          },
         };
       }
 
@@ -49,39 +53,79 @@
         return ['dataChanged(data.*)'];
       }
 
-      dataChanged() {
-        console.log(this.data);
+      loadDataFromCSV(csvPath) {
+        d3.csv(csvPath, (d, i, cols) => {
+            for (let i = 1, n = cols.length; i < n; ++i) {
+              d[cols[i]] = +d[cols[i]];
+            }
+            return d;
+          },
+          (error, csvData) => {
+            if (error) {
+              throw error;
+            }
+
+            let data = {
+              datasets: [],
+              labels: [],
+            };
+            const columns = csvData.columns;
+            const labelKey = columns.shift();
+
+            delete csvData.columns;
+            data.labels = csvData.map((item) => item[labelKey]);
+
+
+            columns.forEach((column) => {
+              let dataset = {label: column, data: []};
+              dataset.data = csvData.map((item) => item[column]);
+              data.datasets.push(dataset);
+            });
+
+            this.set('data', data);
+          });
       }
 
-      _initializeSVG() {
+      dataChanged() {
+        this.clear();
+        this.draw();
+      }
+
+      clear() {
+        if (this.svg) {
+          this.svg.innerHTML = '';
+        }
+      }
+
+      initializeSVG() {
         this.svg = d3.select(this.shadowRoot.querySelector('svg'));
       }
 
-      _getWidth() {
+      getWidth() {
         return +this.svg.attr('width') - this.margin.left - this.margin.right;
       }
 
-      _getHeight() {
+      getHeight() {
         return +this.svg.attr('height') - this.margin.top - this.margin.bottom;
       }
 
-      _getDimensions() {
+      getDimensions() {
         this.margin = {top: 20, right: 20, bottom: 30, left: 40};
-        this.width = this._getWidth();
-        this.height = this._getHeight();
+        this.width = this.getWidth();
+        this.height = this.getHeight();
       }
 
-      _isDataAvailable() {
+      isDataAvailable() {
         return !!this.data;
       }
 
-      _draw() {
-        if (!this._isDataAvailable()) {
+      draw() {
+        if (!this.isDataAvailable()) {
           return false;
         }
 
-        this._initializeSVG();
-        this._getDimensions();
+        this.initializeSVG();
+        this.getDimensions();
 
         let g = this.svg.append('g')
           .attr('transform',
@@ -105,19 +149,15 @@
 
         x0.domain(this.data.labels);
         x1.domain(keys).rangeRound([0, x0.bandwidth()]);
-        y.domain([0, d3.max(this.data.datasets, function(d) {
-          return d3.max(d.data, function(value) {
-            return value;
-          });
+        y.domain([0, d3.max(this.data.datasets, (d) => {
+          return d3.max(d.data);
         })]).nice();
 
         g.append('g')
           .selectAll('g')
           .data(this.data.labels)
           .enter().append('g')
-          .attr('transform', function(d) {
-            return 'translate(' + x0(d) + ',0)';
-          })
+          .attr('transform', (d) => 'translate(' + x0(d) + ',0)')
           .selectAll('rect')
           .data((d, i) => {
             return this.data.datasets.map((dataset) => {
@@ -125,19 +165,11 @@
             });
           })
           .enter().append('rect')
-          .attr('x', function(d) {
-            return x1(d.key);
-          })
-          .attr('y', function(d) {
-            return y(d.value);
-          })
+          .attr('x', (d) => x1(d.key))
+          .attr('y', (d) => y(d.value))
           .attr('width', x1.bandwidth())
-          .attr('height', function(d) {
-            return this.height - y(d.value);
-          }.bind(this))
-          .attr('fill', function(d) {
-            return z(d.key);
-          });
+          .attr('height', (d) => this.height - y(d.value))
+          .attr('fill', (d) => z(d.key));
 
         g.append('g')
           .attr('class', 'axis')
@@ -163,9 +195,7 @@
           .selectAll('g')
           .data(keys.slice().reverse())
           .enter().append('g')
-          .attr('transform', function(d, i) {
-            return 'translate(0,' + i * 20 + ')';
-          });
+          .attr('transform', (d, i) => 'translate(0,' + i * 20 + ')');
 
         legend.append('rect')
           .attr('x', this.width - 19)
@@ -177,14 +207,12 @@
           .attr('x', this.width - 24)
           .attr('y', 9.5)
           .attr('dy', '0.32em')
-          .text(function(d) {
-            return d;
-          });
+          .text((d) => d);
       }
 
       connectedCallback() {
         super.connectedCallback();
-        this._draw();
+        this.draw();
       }
     }
 

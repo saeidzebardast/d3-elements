@@ -25,39 +25,7 @@
   <h3>Basic d3-grouped-bar demo</h3>
   <demo-snippet>
     <template>
-      <d3-grouped-bar></d3-grouped-bar>
-      <script>
-        d3.csv('sample-data/d3-grouped-bar.csv', function(d, i, cols) {
-            for (let i = 1, n = cols.length; i < n; ++i) {
-              d[cols[i]] = +d[cols[i]];
-            }
-            return d;
-          },
-          function(error, csvData) {
-            if (error) {
-              throw error;
-            }
-
-            let data = {
-              datasets: [],
-              labels: [],
-            };
-            const columns = csvData.columns;
-            const labelKey = columns.shift();
-
-            delete csvData.columns;
-            data.labels = csvData.map((item) => item[labelKey]);
-
-
-            columns.forEach((column) => {
-              let dataset = {label: column, data: []};
-              dataset.data = csvData.map((item) => item[column]);
-              data.datasets.push(dataset);
-            });
-
-            document.querySelector('d3-grouped-bar').data = data;
-          });
-      </script>
+      <d3-grouped-bar csv="sample-data/d3-grouped-bar.csv"></d3-grouped-bar>
     </template>
   </demo-snippet>
 </div>
