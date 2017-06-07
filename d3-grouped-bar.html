@@ -46,6 +46,7 @@
             type: String,
             observer: 'loadDataFromCSV',
           },
+          chartTitle: String,
         };
       }
 
@@ -186,7 +187,7 @@
           .attr('fill', '#000')
           .attr('font-weight', 'bold')
           .attr('text-anchor', 'start')
-          .text('Population');
+          .text(this.chartTitle);
 
         var legend = g.append('g')
           .attr('font-family', 'sans-serif')
