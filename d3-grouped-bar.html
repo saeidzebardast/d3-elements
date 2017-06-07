@@ -117,7 +117,7 @@
       }
 
       isDataAvailable() {
-        return !!this.data;
+        return this.data && this.data.labels && this.data.datasets;
       }
 
       draw() {
