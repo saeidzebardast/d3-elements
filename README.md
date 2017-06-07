@@ -8,7 +8,8 @@ bower install d3-elements
 ```
 
 ## Available charts elements
-* &lt;d3-grouped-bar&gt;
+* [x] &lt;d3-grouped-bar&gt;
+* [ ] &lt;d3-pie&gt;
 
 
 ## Viewing Elements
