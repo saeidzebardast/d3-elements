@@ -33,10 +33,28 @@
             }
             return d;
           },
-          function(error, data) {
+          function(error, csvData) {
             if (error) {
               throw error;
             }
+
+            let data = {
+              datasets: [],
+              labels: [],
+            };
+            const columns = csvData.columns;
+            const labelKey = columns.shift();
+
+            delete csvData.columns;
+            data.labels = csvData.map((item) => item[labelKey]);
+
+
+            columns.forEach((column) => {
+              let dataset = {label: column, data: []};
+              dataset.data = csvData.map((item) => item[column]);
+              data.datasets.push(dataset);
+            });
+
             document.querySelector('d3-grouped-bar').data = data;
           });
       </script>
