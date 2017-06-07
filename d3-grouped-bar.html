@@ -9,7 +9,7 @@
       }
     </style>
 
-    <svg width="560" height="400"></svg>
+    <svg></svg>
   </template>
 
   <script>
@@ -100,6 +100,9 @@
 
       initializeSVG() {
         this.svg = d3.select(this.shadowRoot.querySelector('svg'));
+        let clientRect = this.getBoundingClientRect();
+        this.svg.attr('width', clientRect.width);
+        this.svg.attr('height', clientRect.height);
       }
 
       getWidth() {
