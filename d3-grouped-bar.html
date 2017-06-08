@@ -94,7 +94,7 @@
 
       clear() {
         if (this.svg) {
-          this.svg.innerHTML = '';
+          this.svg.selectAll('*').remove();
         }
       }
 
