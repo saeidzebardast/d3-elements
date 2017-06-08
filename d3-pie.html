@@ -1,0 +1,182 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="d3-import.html">
+
+<dom-module id="d3-pie">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .arc text {
+        font: 10px sans-serif;
+        text-anchor: middle;
+      }
+
+      .arc path {
+        stroke: #fff;
+      }
+    </style>
+
+    <svg></svg>
+  </template>
+
+  <script>
+    /**
+     * `d3-pie`
+     * D3 Pie as Polymer Element
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/d3-pie.html
+     */
+    class D3Pie extends Polymer.Element {
+      static get is() {
+        return 'd3-pie';
+      }
+
+      static get properties() {
+        return {
+          /**
+           {
+               datasets: [{
+                   data: [10, 20, 30]
+               }],
+               labels: [
+                   'Red',
+                   'Yellow',
+                   'Blue'
+               ]
+           }
+           **/
+          data: Object,
+          csv: {
+            type: String,
+            observer: 'loadDataFromCSV',
+          },
+        };
+      }
+
+      static get observers() {
+        return ['dataChanged(data.*)'];
+      }
+
+      loadDataFromCSV(csvPath) {
+        d3.csv(csvPath, (d, i, cols) => {
+            for (let i = 1, n = cols.length; i < n; ++i) {
+              d[cols[i]] = +d[cols[i]];
+            }
+            return d;
+          },
+          (error, csvData) => {
+            if (error) {
+              throw error;
+            }
+
+            let data = {
+              datasets: [],
+              labels: [],
+            };
+            const columns = csvData.columns;
+            const labelKey = columns.shift();
+
+            delete csvData.columns;
+            data.labels = csvData.map((item) => item[labelKey]);
+
+
+            columns.forEach((column) => {
+              let dataset = {label: column, data: []};
+              dataset.data = csvData.map((item) => item[column]);
+              data.datasets.push(dataset);
+            });
+
+            this.set('data', data);
+          });
+      }
+
+      dataChanged() {
+        this.clear();
+        this.draw();
+      }
+
+      clear() {
+        if (this.svg) {
+          this.svg.selectAll('*').remove();
+        }
+      }
+
+      initializeSVG() {
+        this.svg = d3.select(this.shadowRoot.querySelector('svg'));
+        let clientRect = this.getBoundingClientRect();
+        this.svg.attr('width', clientRect.width);
+        this.svg.attr('height', clientRect.height);
+      }
+
+      getWidth() {
+        return +this.svg.attr('width');
+      }
+
+      getHeight() {
+        return +this.svg.attr('height');
+      }
+
+      getDimensions() {
+        this.width = this.getWidth();
+        this.height = this.getHeight();
+        this.radius = Math.min(this.width, this.height) / 2;
+      }
+
+      isDataAvailable() {
+        return this.data && this.data.labels && this.data.datasets;
+      }
+
+      draw() {
+        if (!this.isDataAvailable()) {
+          return false;
+        }
+
+        this.initializeSVG();
+        this.getDimensions();
+
+        let g = this.svg.append('g')
+          .attr('transform',
+            'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
+
+        let color = d3.scaleOrdinal(['#98abc5', '#8a89a6', '#7b6888',
+          '#6b486b', '#a05d56', '#d0743c', '#ff8c00']);
+
+        let pie = d3.pie()
+          .sort(null);
+
+        let path = d3.arc()
+          .outerRadius(this.radius - 10)
+          .innerRadius(0);
+
+        let label = d3.arc()
+          .outerRadius(this.radius - 40)
+          .innerRadius(this.radius - 40);
+
+        let arc = g.selectAll('.arc')
+          .data(pie(this.data.datasets[0].data))
+          .enter().append('g')
+          .attr('class', 'arc');
+
+        arc.append('path')
+          .attr('d', path)
+          .attr('fill', (d) => color(d.index));
+
+        arc.append('text')
+          .attr('transform', (d) => 'translate(' + label.centroid(d) + ')')
+          .attr('dy', '0.35em')
+          .text((d) => this.data.labels[d.index]);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.draw();
+      }
+    }
+
+    window.customElements.define(D3Pie.is, D3Pie);
+  </script>
+</dom-module>

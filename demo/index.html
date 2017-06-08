@@ -5,7 +5,7 @@
   <meta name="viewport"
         content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-  <title>d3-grouped-bar demo</title>
+  <title>d3-elements demos</title>
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../d3/d3.min.js"></script>
@@ -14,10 +14,11 @@
         href="../../iron-demo-helpers/demo-pages-shared-styles.html">
   <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
   <link rel="import" href="../d3-grouped-bar.html">
+  <link rel="import" href="../d3-pie.html">
 
   <custom-style>
     <style is="custom-style" include="demo-pages-shared-styles">
-      d3-grouped-bar {
+      d3-pie, d3-grouped-bar {
         height: 300px;
       }
     </style>
@@ -25,6 +26,12 @@
 </head>
 <body>
 <div class="vertical-section-container centered">
+  <h3>Basic d3-pie demo</h3>
+  <demo-snippet>
+    <template>
+      <d3-pie csv="sample-data/d3-pie.csv"></d3-pie>
+    </template>
+  </demo-snippet>
   <h3>Basic d3-grouped-bar demo</h3>
   <demo-snippet>
     <template>
