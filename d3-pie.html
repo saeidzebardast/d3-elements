@@ -54,6 +54,13 @@
             type: String,
             observer: 'loadDataFromCSV',
           },
+          colorRange: {
+            type: Array,
+            value: ['#a6cee3',
+              '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99',
+              '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6',
+              '#6a3d9a', '#ffff99', '#b15928'],
+          },
         };
       }
 
@@ -142,8 +149,7 @@
           .attr('transform',
             'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
 
-        let color = d3.scaleOrdinal(['#98abc5', '#8a89a6', '#7b6888',
-          '#6b486b', '#a05d56', '#d0743c', '#ff8c00']);
+        let color = d3.scaleOrdinal(this.colorRange);
 
         let pie = d3.pie()
           .sort(null);
