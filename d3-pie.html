@@ -174,7 +174,16 @@
         arc.append('text')
           .attr('transform', (d) => 'translate(' + label.centroid(d) + ')')
           .attr('dy', '0.35em')
-          .text((d) => this.data.labels[d.index]);
+          .text((d) => this.data.labels[d.index])
+          .on('click', (d) => {
+            let detail = d;
+            detail.label = this.data.labels[d.index];
+            this.dispatchEvent(new CustomEvent('label-click', {
+              detail: detail,
+              bubbles: true,
+              composed: true,
+            }));
+          });
       }
 
       connectedCallback() {

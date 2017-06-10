@@ -39,5 +39,10 @@
     </template>
   </demo-snippet>
 </div>
+<script>
+  window.addEventListener('label-click', function(e) {
+    console.log(e.type + ' => ', e);
+  });
+</script>
 </body>
 </html>
